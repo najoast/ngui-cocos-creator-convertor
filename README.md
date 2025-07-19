@@ -1,13 +1,21 @@
 # 插件说明
 需求将Unity项目移植到CocosCreator(H5). 如果UI全部重拼一遍太费时费力. 故抽出时间写了这个扩展. 用于Unity NGUI制作的UI prefab移植到Cocos Creator.
 
+**🆕 新功能**: 现在支持**反向转换**！可以将Cocos Creator 2.x的prefab转换回Unity NGUI格式。详见[反向转换使用指南](./REVERSE_CONVERSION_GUIDE.md)
+
 NGUI版本: 3.8.2<br>
 CocosCreator版本: 
 > * 1.9.x使用 **CocosCreator** 中的插件
 > * 1.10.x及2.x使用 **CocosCreator_1.10_2.x** 中的插件
+> * 反向转换(Cocos Creator → Unity)使用 **CocosCreator/prefab-exporter** 插件
 
-# 工作原理
+# 功能特性
+
+## 正向转换 (Unity NGUI → Cocos Creator)
 将Unity中prefab的节点父子结构, 以及节点上NGUI的UISprite, UILabel, UITexture等控件的有用信息保存至json文件. 在CocosCreator中解析后再创建.
+
+## 反向转换 (Cocos Creator → Unity NGUI)
+将Cocos Creator的prefab导出为JSON格式，然后在Unity中重建为NGUI UI结构。支持大部分常用组件和属性的转换。
 
 目前可移植项:
 > * 节点: position, scale, rotation(仅z轴), active, name
@@ -21,9 +29,20 @@ CocosCreator版本:
 可以覆盖大部分需求.
 
 # 使用方法
+
+## 正向转换 (Unity → Cocos Creator)
 1. 将 **Unity** 文件夹内文件放至Unity工程内. 在Prefab上右键导出Json文件.
 2. 将 **prefab-creator** 文件夹放至CocosCreator工程packages目录下. 在扩展菜单中选择 **Prefab生成工具** 打开扩展窗口. 配置导出路径以及图片文件夹. 图片/字体文件夹内放入需要的资源, 支持图集和散图, **图集文件名/图集内图片文件名/散图文件名/字体文件名要与Unity端一致!!!**. 之后拖入第一步导出的Json文件, 点生成即可. 
 3. 首次创建时需要加载文件夹内的所有图片, 根据图片数量可能需要较长时间. 所以建议移除文件夹内的无用图片资源.
+
+## 反向转换 (Cocos Creator → Unity)
+1. 将 **CocosCreator/prefab-exporter** 文件夹复制到Cocos Creator项目的packages目录下
+2. 重启Cocos Creator，在菜单栏选择 "Prefab导出工具"
+3. 选择要导出的Prefab文件和导出路径，导出为JSON文件
+4. 将 **Unity/Editor/ImportCocosCreatorPrefab.cs** 放入Unity项目的Assets/Editor文件夹
+5. 在Unity中右键选择 "Import From Cocos Creator Json"，选择导出的JSON文件即可
+
+详细的反向转换说明请参考：[反向转换使用指南](./REVERSE_CONVERSION_GUIDE.md)
 
 # 效果预览
 ![](https://github.com/glegoo/ngui-cocos-creator-convertor/blob/master/example.gif?raw=true)

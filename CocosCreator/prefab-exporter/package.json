@@ -1,0 +1,20 @@
+{
+  "name": "prefab-exporter",
+  "version": "0.0.1",
+  "description": "Export Cocos Creator prefab to JSON format for Unity import",
+  "author": "Cocos Creator",
+  "main": "main.js",
+  "scene-script": "prefab-exporter.js",
+  "main-menu": {
+    "i18n:MAIN_MENU.package.title/Prefab导出工具": {
+      "message": "prefab-exporter:open"
+    }
+  },
+  "panel": {
+    "main": "panel/index.js",
+    "type": "dockable",
+    "title": "prefab-exporter",
+    "width": 386,
+    "height": 200
+  }
+}
