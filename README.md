@@ -13,17 +13,29 @@ CocosCreator版本:
 ## 正向转换 (Unity NGUI → Cocos Creator)
 将Unity中prefab的节点父子结构, 以及节点上NGUI的UISprite, UILabel, UITexture等控件的有用信息保存至json文件. 在CocosCreator中解析后再创建.
 
-## 反向转换 (Cocos Creator → Unity NGUI)
-将Cocos Creator的prefab导出为JSON格式，然后在Unity中重建为NGUI UI结构。支持大部分常用组件和属性的转换。
+## 反向转换 (Cocos Creator → Unity NGUI/UGUI)
+将Cocos Creator的prefab导出为JSON格式，然后在Unity中重建为NGUI或UGUI结构。支持大部分常用组件和属性的转换。
+
+**🆕 现在支持两种Unity UI系统:**
+- **UGUI版本 (推荐)**: 使用Unity原生UI系统，适合Unity 2022+现代项目
+- **NGUI版本**: 适用于使用NGUI插件的传统项目
 
 目前可移植项:
 > * 节点: position, scale, rotation(仅z轴), active, name
-> * UIWidget: 锚点信息, 宽高, 颜色
-> * UISprite, UITexture: 图集, 图片, 是否使用Slice, 九宫格Border信息
-> * UILabel: 字号, 描边颜色宽度, overflow, 对齐方式, 行间距, bitmap字体(字间距)
-> * 带有BoxCollider的节点会被挂载UIButton
-> * 子节点按UIWidget的depth排序
-> * ScrollView + Grid: 不完美移植,由于两方控件区别较大, 暂时没想到什么好方法完美移植. 现阶段支持使用最多的竖排列表的移植, 移植后需微调间距等数值.
+> * UIWidget → Image/RectTransform: 锚点信息, 宽高, 颜色
+> * UISprite → Image: 图集, 图片, Sliced/Tiled类型支持
+> * UITexture → RawImage: 纹理, 颜色
+> * UILabel → Text: 字号, 颜色, 对齐方式, 行间距
+> * UIButton → Button: 按钮交互, 颜色状态
+> * UIScrollView → ScrollRect: 滚动视图(基础支持)
+> * 带有BoxCollider的节点会被挂载Button组件
+> * 子节点按层级深度排序
+
+**UGUI版本优势:**
+- 使用Unity原生组件，无依赖问题
+- 更好的性能和现代Unity兼容性  
+- 支持Unity 2022+ LTS版本
+- 更简单的维护和调试
 
 可以覆盖大部分需求.
 
@@ -36,12 +48,29 @@ CocosCreator版本:
 
 ## 反向转换 (Cocos Creator → Unity)
 
+**🆕 支持两种Unity UI系统:**
+- **NGUI版本**: 适用于使用NGUI插件的老项目  
+- **UGUI版本**: 适用于Unity 2022+的现代项目，使用Unity原生UI系统
+
 ### 单个Prefab导出
 1. 将 **CocosCreator_1.10_2.x/prefab-exporter** 文件夹复制到Cocos Creator项目的packages目录下
 2. 重启Cocos Creator，在菜单栏选择 "Prefab导出工具"
 3. 选择"单个Prefab"模式，选择要导出的Prefab文件和导出路径
-4. 将 **Unity/Editor/ImportCocosCreatorPrefab.cs** 放入Unity项目的Assets/Editor文件夹
+
+### Unity端导入 (选择其中一种)
+
+#### UGUI版本 (推荐)
+4. 将 **Unity/Editor/ImportCocosCreatorPrefabUGUI.cs** 放入Unity项目的Assets/Editor文件夹
+5. 在Unity中右键选择 "Import From Cocos Creator Json (UGUI)"，选择导出的JSON文件即可
+- ✅ 使用Unity原生UI组件 (Image, Text, Button等)
+- ✅ 无需额外插件，适合Unity 2022+
+- ✅ 更好的性能和现代Unity兼容性
+
+#### NGUI版本 (传统)
+4. 将 **Unity/Editor/ImportCocosCreatorPrefab.cs** 放入Unity项目的Assets/Editor文件夹  
 5. 在Unity中右键选择 "Import From Cocos Creator Json"，选择导出的JSON文件即可
+- ⚠️ 需要安装NGUI插件 (UIWidget, UISprite, UILabel等组件)
+- ⚠️ 适用于老项目或特定需求
 
 ### 批量导出 (适合大量Prefab项目)
 1. 在Cocos Creator的"Prefab导出工具"中选择"批量导出"模式
@@ -50,10 +79,19 @@ CocosCreator版本:
 4. 点击"批量导出"，工具会自动导出所有Prefab并生成资源清单
 
 ### Unity端批量导入和资源处理
+
+#### NGUI版本 (传统)
 1. 将Unity/Editor文件夹中的所有脚本放入Unity项目的Assets/Editor文件夹
 2. 使用 "Assets -> Batch Import From Cocos Creator Folder" 批量导入JSON文件
 3. 使用 "Window -> Cocos Creator Resource Exporter" 工具导出和导入资源文件
 4. 根据资源清单检查缺失的资源引用
+**注意**: 需要安装NGUI插件 (UIWidget, UISprite, UILabel等组件)
+
+#### UGUI版本 (推荐用于Unity 2022+)
+1. 将Unity/Editor文件夹中的**UGUI脚本**放入Unity项目的Assets/Editor文件夹
+2. 使用 "Assets -> Batch Import From Cocos Creator Folder (UGUI)" 批量导入
+3. 使用Unity原生UI组件 (Image, Text, Button, ScrollRect等)，无需额外插件
+4. 支持现代Unity版本，更好的性能和兼容性
 
 ### 资源依赖解决方案
 - **自动资源清单**: 批量导出时会生成`resource_list.json`，包含所有Prefab引用的资源信息
