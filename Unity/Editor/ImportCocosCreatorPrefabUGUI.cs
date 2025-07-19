@@ -3,7 +3,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
 using System.Collections.Generic;
-using LitJson;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 public class ImportCocosCreatorPrefabUGUI : Editor
 {
@@ -22,7 +23,7 @@ public class ImportCocosCreatorPrefabUGUI : Editor
         try
         {
             string jsonContent = File.ReadAllText(filePath);
-            JsonData rootData = JsonMapper.ToObject(jsonContent);
+            JObject rootData = JObject.Parse(jsonContent);
             
             // 创建根节点GameObject
             string prefabName = Path.GetFileNameWithoutExtension(filePath);
@@ -39,12 +40,16 @@ public class ImportCocosCreatorPrefabUGUI : Editor
             
             // 保存为Prefab
             string prefabPath = "Assets/" + prefabName + "_UGUI.prefab";
-            PrefabUtility.SaveAsPrefabAsset(rootObject, prefabPath);
+            GameObject prefabAsset = PrefabUtility.SaveAsPrefabAsset(rootObject, prefabPath);
             
             Debug.Log($"成功导入UGUI Prefab: {prefabPath}");
             
-            // 选中创建的对象
-            Selection.activeGameObject = rootObject;
+            // 立即删除场景中的临时对象
+            DestroyImmediate(rootObject);
+            
+            // 选中Assets中的Prefab资源
+            Selection.activeObject = prefabAsset;
+            EditorGUIUtility.PingObject(prefabAsset);
         }
         catch (System.Exception e)
         {
@@ -52,7 +57,7 @@ public class ImportCocosCreatorPrefabUGUI : Editor
         }
     }
 
-    public static GameObject ConvertNodeFromJsonUGUI(JsonData nodeData, GameObject parentObject, Transform parent)
+    public static GameObject ConvertNodeFromJsonUGUI(JObject nodeData, GameObject parentObject, Transform parent)
     {
         if (nodeData == null) return null;
 
@@ -73,65 +78,69 @@ public class ImportCocosCreatorPrefabUGUI : Editor
         RectTransform rectTransform = nodeObject.AddComponent<RectTransform>();
 
         // 设置基本属性
-        if (nodeData.ContainsKey("name"))
+        if (nodeData["name"] != null)
         {
             nodeObject.name = nodeData["name"].ToString();
         }
-
-        if (nodeData.ContainsKey("active"))
+        else
         {
-            nodeObject.SetActive((bool)nodeData["active"]);
+            nodeObject.name = "Node"; // 默认名称
+        }
+
+        if (nodeData["active"] != null)
+        {
+            nodeObject.SetActive(nodeData["active"].Value<bool>());
         }
 
         // 设置位置
-        if (nodeData.ContainsKey("pos"))
+        if (nodeData["pos"] != null)
         {
-            JsonData posData = nodeData["pos"];
+            JObject posData = nodeData["pos"] as JObject;
             Vector3 position = new Vector3(
-                (float)(double)posData["x"],
-                (float)(double)posData["y"],
-                (float)(double)posData["z"]
+                posData?["x"]?.Value<float>() ?? 0f,
+                posData?["y"]?.Value<float>() ?? 0f,
+                posData?["z"]?.Value<float>() ?? 0f
             );
             rectTransform.anchoredPosition3D = position;
         }
 
         // 设置缩放
-        if (nodeData.ContainsKey("scale"))
+        if (nodeData["scale"] != null)
         {
-            JsonData scaleData = nodeData["scale"];
+            JObject scaleData = nodeData["scale"] as JObject;
             Vector3 scale = new Vector3(
-                (float)(double)scaleData["x"],
-                (float)(double)scaleData["y"],
-                (float)(double)scaleData["z"]
+                scaleData?["x"]?.Value<float>() ?? 1f,
+                scaleData?["y"]?.Value<float>() ?? 1f,
+                scaleData?["z"]?.Value<float>() ?? 1f
             );
             rectTransform.localScale = scale;
         }
 
         // 设置旋转
-        if (nodeData.ContainsKey("rotation"))
+        if (nodeData["rotation"] != null)
         {
-            float rotation = (float)(double)nodeData["rotation"];
+            float rotation = nodeData["rotation"].Value<float>();
             rectTransform.localRotation = Quaternion.Euler(0, 0, rotation);
         }
 
         // 设置尺寸
-        if (nodeData.ContainsKey("size"))
+        if (nodeData["size"] != null)
         {
-            JsonData sizeData = nodeData["size"];
+            JObject sizeData = nodeData["size"] as JObject;
             Vector2 size = new Vector2(
-                (float)(double)sizeData["width"],
-                (float)(double)sizeData["height"]
+                sizeData?["width"]?.Value<float>() ?? 100f,
+                sizeData?["height"]?.Value<float>() ?? 100f
             );
             rectTransform.sizeDelta = size;
         }
 
         // 设置锚点
-        if (nodeData.ContainsKey("anchor"))
+        if (nodeData["anchor"] != null)
         {
-            JsonData anchorData = nodeData["anchor"];
+            JObject anchorData = nodeData["anchor"] as JObject;
             Vector2 anchor = new Vector2(
-                (float)(double)anchorData["x"],
-                (float)(double)anchorData["y"]
+                anchorData?["x"]?.Value<float>() ?? 0.5f,
+                anchorData?["y"]?.Value<float>() ?? 0.5f
             );
             rectTransform.anchorMin = anchor;
             rectTransform.anchorMax = anchor;
@@ -139,31 +148,37 @@ public class ImportCocosCreatorPrefabUGUI : Editor
         }
 
         // 转换组件
-        if (nodeData.ContainsKey("components"))
+        if (nodeData["components"] != null)
         {
-            JsonData componentsData = nodeData["components"];
-            for (int i = 0; i < componentsData.Count; i++)
+            JArray componentsData = nodeData["components"] as JArray;
+            if (componentsData != null)
             {
-                ConvertComponentUGUI(componentsData[i], nodeObject, rectTransform);
+                foreach (JObject component in componentsData)
+                {
+                    ConvertComponentUGUI(component, nodeObject, rectTransform);
+                }
             }
         }
 
         // 转换子节点
-        if (nodeData.ContainsKey("children"))
+        if (nodeData["children"] != null)
         {
-            JsonData childrenData = nodeData["children"];
-            for (int i = 0; i < childrenData.Count; i++)
+            JArray childrenData = nodeData["children"] as JArray;
+            if (childrenData != null)
             {
-                ConvertNodeFromJsonUGUI(childrenData[i], null, nodeObject.transform);
+                foreach (JObject child in childrenData)
+                {
+                    ConvertNodeFromJsonUGUI(child, null, nodeObject.transform);
+                }
             }
         }
 
         return nodeObject;
     }
 
-    static void ConvertComponentUGUI(JsonData componentData, GameObject gameObject, RectTransform rectTransform)
+    static void ConvertComponentUGUI(JObject componentData, GameObject gameObject, RectTransform rectTransform)
     {
-        if (!componentData.ContainsKey("type")) return;
+        if (componentData["type"] == null) return;
 
         string componentType = componentData["type"].ToString();
         
@@ -187,35 +202,35 @@ public class ImportCocosCreatorPrefabUGUI : Editor
         }
     }
 
-    static void ConvertUISpriteUGUI(JsonData componentData, GameObject gameObject, RectTransform rectTransform)
+    static void ConvertUISpriteUGUI(JObject componentData, GameObject gameObject, RectTransform rectTransform)
     {
         Image image = gameObject.AddComponent<Image>();
         
         // 设置颜色
-        if (componentData.ContainsKey("color"))
+        if (componentData["color"] != null)
         {
-            JsonData colorData = componentData["color"];
+            JObject colorData = componentData["color"] as JObject;
             Color color = new Color(
-                (float)(double)colorData["r"] / 255f,
-                (float)(double)colorData["g"] / 255f,
-                (float)(double)colorData["b"] / 255f,
-                (float)(double)colorData["a"] / 255f
+                colorData?["r"]?.Value<float>() / 255f ?? 1f,
+                colorData?["g"]?.Value<float>() / 255f ?? 1f,
+                colorData?["b"]?.Value<float>() / 255f ?? 1f,
+                colorData?["a"]?.Value<float>() / 255f ?? 1f
             );
             image.color = color;
         }
 
         // 设置精灵类型
-        if (componentData.ContainsKey("type") && componentData["type"].ToString() == "Sliced")
+        if (componentData["type"] != null && componentData["type"].ToString() == "Sliced")
         {
             image.type = Image.Type.Sliced;
         }
-        else if (componentData.ContainsKey("type") && componentData["type"].ToString() == "Tiled")
+        else if (componentData["type"] != null && componentData["type"].ToString() == "Tiled")
         {
             image.type = Image.Type.Tiled;
         }
 
         // 尝试加载精灵资源
-        if (componentData.ContainsKey("spriteName"))
+        if (componentData["spriteName"] != null)
         {
             string spriteName = componentData["spriteName"].ToString();
             // 这里可以添加精灵加载逻辑
@@ -223,37 +238,37 @@ public class ImportCocosCreatorPrefabUGUI : Editor
         }
     }
 
-    static void ConvertUILabelUGUI(JsonData componentData, GameObject gameObject, RectTransform rectTransform)
+    static void ConvertUILabelUGUI(JObject componentData, GameObject gameObject, RectTransform rectTransform)
     {
         Text text = gameObject.AddComponent<Text>();
         
         // 设置文本内容
-        if (componentData.ContainsKey("text"))
+        if (componentData["text"] != null)
         {
             text.text = componentData["text"].ToString();
         }
 
         // 设置字体大小
-        if (componentData.ContainsKey("fontSize"))
+        if (componentData["fontSize"] != null)
         {
-            text.fontSize = (int)(double)componentData["fontSize"];
+            text.fontSize = componentData["fontSize"].Value<int>();
         }
 
         // 设置颜色
-        if (componentData.ContainsKey("color"))
+        if (componentData["color"] != null)
         {
-            JsonData colorData = componentData["color"];
+            JObject colorData = componentData["color"] as JObject;
             Color color = new Color(
-                (float)(double)colorData["r"] / 255f,
-                (float)(double)colorData["g"] / 255f,
-                (float)(double)colorData["b"] / 255f,
-                (float)(double)colorData["a"] / 255f
+                colorData?["r"]?.Value<float>() / 255f ?? 0f,
+                colorData?["g"]?.Value<float>() / 255f ?? 0f,
+                colorData?["b"]?.Value<float>() / 255f ?? 0f,
+                colorData?["a"]?.Value<float>() / 255f ?? 1f
             );
             text.color = color;
         }
 
         // 设置对齐方式
-        if (componentData.ContainsKey("alignment"))
+        if (componentData["alignment"] != null)
         {
             string alignment = componentData["alignment"].ToString();
             switch (alignment.ToLower())
@@ -274,32 +289,32 @@ public class ImportCocosCreatorPrefabUGUI : Editor
         text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
     }
 
-    static void ConvertUITextureUGUI(JsonData componentData, GameObject gameObject, RectTransform rectTransform)
+    static void ConvertUITextureUGUI(JObject componentData, GameObject gameObject, RectTransform rectTransform)
     {
         RawImage rawImage = gameObject.AddComponent<RawImage>();
         
         // 设置颜色
-        if (componentData.ContainsKey("color"))
+        if (componentData["color"] != null)
         {
-            JsonData colorData = componentData["color"];
+            JObject colorData = componentData["color"] as JObject;
             Color color = new Color(
-                (float)(double)colorData["r"] / 255f,
-                (float)(double)colorData["g"] / 255f,
-                (float)(double)colorData["b"] / 255f,
-                (float)(double)colorData["a"] / 255f
+                colorData?["r"]?.Value<float>() / 255f ?? 1f,
+                colorData?["g"]?.Value<float>() / 255f ?? 1f,
+                colorData?["b"]?.Value<float>() / 255f ?? 1f,
+                colorData?["a"]?.Value<float>() / 255f ?? 1f
             );
             rawImage.color = color;
         }
 
         // 尝试加载纹理
-        if (componentData.ContainsKey("textureName"))
+        if (componentData["textureName"] != null)
         {
             string textureName = componentData["textureName"].ToString();
             Debug.Log($"需要加载纹理: {textureName}");
         }
     }
 
-    static void ConvertUIButtonUGUI(JsonData componentData, GameObject gameObject, RectTransform rectTransform)
+    static void ConvertUIButtonUGUI(JObject componentData, GameObject gameObject, RectTransform rectTransform)
     {
         Button button = gameObject.AddComponent<Button>();
         
@@ -313,14 +328,14 @@ public class ImportCocosCreatorPrefabUGUI : Editor
         button.targetGraphic = image;
 
         // 设置颜色
-        if (componentData.ContainsKey("normalColor"))
+        if (componentData["normalColor"] != null)
         {
-            JsonData colorData = componentData["normalColor"];
+            JObject colorData = componentData["normalColor"] as JObject;
             Color color = new Color(
-                (float)(double)colorData["r"] / 255f,
-                (float)(double)colorData["g"] / 255f,
-                (float)(double)colorData["b"] / 255f,
-                (float)(double)colorData["a"] / 255f
+                colorData?["r"]?.Value<float>() / 255f ?? 1f,
+                colorData?["g"]?.Value<float>() / 255f ?? 1f,
+                colorData?["b"]?.Value<float>() / 255f ?? 1f,
+                colorData?["a"]?.Value<float>() / 255f ?? 1f
             );
             
             ColorBlock colorBlock = button.colors;
@@ -329,7 +344,7 @@ public class ImportCocosCreatorPrefabUGUI : Editor
         }
     }
 
-    static void ConvertUIScrollViewUGUI(JsonData componentData, GameObject gameObject, RectTransform rectTransform)
+    static void ConvertUIScrollViewUGUI(JObject componentData, GameObject gameObject, RectTransform rectTransform)
     {
         ScrollRect scrollRect = gameObject.AddComponent<ScrollRect>();
         
