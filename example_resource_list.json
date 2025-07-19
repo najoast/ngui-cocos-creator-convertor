@@ -1,0 +1,54 @@
+{
+  "exportTime": "2025-07-19T10:30:00.000Z",
+  "totalResources": 156,
+  "resources": [
+    {
+      "name": "bg_main",
+      "type": "SpriteFrame",
+      "path": "db://assets/textures/backgrounds/bg_main.png",
+      "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+    },
+    {
+      "name": "btn_normal",
+      "type": "SpriteFrame", 
+      "path": "db://assets/textures/ui/btn_normal.png",
+      "uuid": "b2c3d4e5-f6g7-8901-bcde-f23456789012"
+    },
+    {
+      "name": "icon_coin",
+      "type": "SpriteFrame",
+      "path": "db://assets/textures/icons/icon_coin.png", 
+      "uuid": "c3d4e5f6-g7h8-9012-cdef-345678901234"
+    },
+    {
+      "name": "ui_atlas",
+      "type": "Texture2D",
+      "path": "db://assets/textures/atlas/ui_atlas.png",
+      "uuid": "d4e5f6g7-h8i9-0123-def4-456789012345"
+    },
+    {
+      "name": "font_default",
+      "type": "BitmapFont",
+      "path": "db://assets/fonts/font_default.fnt",
+      "uuid": "e5f6g7h8-i9j0-1234-ef45-567890123456"
+    },
+    {
+      "name": "title_font",
+      "type": "Font",
+      "path": "db://assets/fonts/title_font.ttf", 
+      "uuid": "f6g7h8i9-j0k1-2345-f456-678901234567"
+    },
+    {
+      "name": "loading_bg",
+      "type": "SpriteFrame",
+      "path": "db://assets/scenes/loading/loading_bg.jpg",
+      "uuid": "g7h8i9j0-k1l2-3456-4567-789012345678"
+    },
+    {
+      "name": "progress_bar",
+      "type": "SpriteFrame", 
+      "path": "db://assets/textures/ui/progress_bar.png",
+      "uuid": "h8i9j0k1-l2m3-4567-5678-890123456789"
+    }
+  ]
+}

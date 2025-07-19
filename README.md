@@ -35,11 +35,30 @@ CocosCreator版本:
 3. 首次创建时需要加载文件夹内的所有图片, 根据图片数量可能需要较长时间. 所以建议移除文件夹内的无用图片资源.
 
 ## 反向转换 (Cocos Creator → Unity)
+
+### 单个Prefab导出
 1. 将 **CocosCreator_1.10_2.x/prefab-exporter** 文件夹复制到Cocos Creator项目的packages目录下
 2. 重启Cocos Creator，在菜单栏选择 "Prefab导出工具"
-3. 选择要导出的Prefab文件和导出路径，导出为JSON文件
+3. 选择"单个Prefab"模式，选择要导出的Prefab文件和导出路径
 4. 将 **Unity/Editor/ImportCocosCreatorPrefab.cs** 放入Unity项目的Assets/Editor文件夹
 5. 在Unity中右键选择 "Import From Cocos Creator Json"，选择导出的JSON文件即可
+
+### 批量导出 (适合大量Prefab项目)
+1. 在Cocos Creator的"Prefab导出工具"中选择"批量导出"模式
+2. 选择包含Prefab文件的目录（支持递归子文件夹）
+3. 勾选"同时导出资源清单"选项
+4. 点击"批量导出"，工具会自动导出所有Prefab并生成资源清单
+
+### Unity端批量导入和资源处理
+1. 将Unity/Editor文件夹中的所有脚本放入Unity项目的Assets/Editor文件夹
+2. 使用 "Assets -> Batch Import From Cocos Creator Folder" 批量导入JSON文件
+3. 使用 "Window -> Cocos Creator Resource Exporter" 工具导出和导入资源文件
+4. 根据资源清单检查缺失的资源引用
+
+### 资源依赖解决方案
+- **自动资源清单**: 批量导出时会生成`resource_list.json`，包含所有Prefab引用的资源信息
+- **资源导出工具**: Unity编辑器工具可以根据资源清单自动从Cocos Creator项目复制资源文件
+- **缺失资源检查**: 批量导入时会自动检测缺失的资源并提供详细列表
 
 详细的反向转换说明请参考：[反向转换使用指南](./REVERSE_CONVERSION_GUIDE.md)
 

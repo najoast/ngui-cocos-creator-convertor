@@ -1,26 +1,85 @@
 # Cocos Creator to Unity NGUI 反向转换使用指南
 
-本工具现在支持从Cocos Creator 2.x转换到Unity NGUI的反向转换功能。
+本工具现在支持从Cocos Creator 2.x转换到Unity NGUI的反向转换功能，包括**单个Prefab导出**和**批量导出**功能。
 
 ## 反向转换流程
 
-### 步骤1：在Cocos Creator中导出Prefab为JSON
+### 方案一：单个Prefab导出
+
+#### 步骤1：在Cocos Creator中导出Prefab为JSON
 
 1. 将 `CocosCreator_1.10_2.x/prefab-exporter` 文件夹复制到你的Cocos Creator项目的 `packages` 目录下
 2. 重启Cocos Creator编辑器
 3. 在菜单栏选择 "Prefab导出工具"
 4. 在打开的面板中：
+   - 选择"单个Prefab"模式
    - 选择要导出的Prefab文件
    - 选择JSON文件的导出路径
    - 点击导出按钮
 
-### 步骤2：在Unity中导入JSON文件
+#### 步骤2：在Unity中导入JSON文件
 
 1. 将 `Unity/Editor/ImportCocosCreatorPrefab.cs` 脚本放入Unity项目的 `Assets/Editor` 文件夹中
 2. 在Unity中右键点击Project窗口
 3. 选择 "Import From Cocos Creator Json"
 4. 选择在步骤1中导出的JSON文件
 5. 脚本会自动创建对应的Unity Prefab
+
+### 方案二：批量导出（推荐用于大量Prefab项目）
+
+#### 步骤1：批量导出Prefab和资源清单
+
+1. 将 `CocosCreator_1.10_2.x/prefab-exporter` 文件夹复制到你的Cocos Creator项目的 `packages` 目录下
+2. 重启Cocos Creator编辑器
+3. 在菜单栏选择 "Prefab导出工具"
+4. 在打开的面板中：
+   - 选择"批量导出"模式
+   - 选择包含Prefab文件的目录（如assets文件夹）
+   - 勾选"包含子文件夹"（递归导出所有子目录中的Prefab）
+   - 勾选"同时导出资源清单"（生成资源依赖信息）
+   - 点击"批量导出"按钮
+5. 工具会自动处理所有Prefab文件，并显示导出进度
+
+#### 步骤2：批量导入Unity并处理资源依赖
+
+1. 将 `Unity/Editor` 文件夹中的所有脚本放入Unity项目的 `Assets/Editor` 文件夹
+2. **批量导入Prefab**：
+   - 在Unity中右键选择 "Batch Import From Cocos Creator Folder"
+   - 选择包含导出JSON文件的文件夹
+   - 工具会自动检测缺失资源并显示详细报告
+   - 确认后开始批量导入
+3. **导入资源文件**：
+   - 打开 "Window -> Cocos Creator Resource Exporter"
+   - 设置Cocos Creator项目路径
+   - 设置Unity目标路径（建议创建CocosAssets文件夹）
+   - 选择资源清单文件（resource_list.json）
+   - 点击"根据资源清单导出"自动复制需要的资源文件
+
+## 大项目优化建议
+
+### 针对2800+Prefab的处理策略
+
+1. **分批处理**: 建议按功能模块分批导出，避免一次性处理过多文件
+2. **资源预处理**: 先使用资源导出工具将所有必要资源导入Unity
+3. **增量导出**: 支持重复导出，已存在的文件会被跳过
+4. **进度监控**: 批量导出会显示实时进度，可以随时了解处理状态
+
+### 资源依赖解决方案
+
+1. **自动资源清单**: 
+   - 批量导出时生成`resource_list.json`
+   - 包含所有Prefab引用的纹理、字体等资源信息
+   - 支持资源去重和路径记录
+
+2. **智能资源导入**:
+   - Unity资源导出工具根据清单自动查找和复制资源
+   - 支持按类型分类存放（纹理、字体等）
+   - 自动检测重复资源避免重复复制
+
+3. **缺失资源检查**:
+   - 批量导入前自动检测缺失资源
+   - 提供详细的缺失资源列表
+   - 支持继续导入或先处理资源依赖
 
 ## 支持的组件转换
 

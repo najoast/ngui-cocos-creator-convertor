@@ -77,7 +77,7 @@ public class ImportCocosCreatorPrefab : Editor
         }
     }
 
-    static void ConvertNodeFromJson(JsonData nodeData, GameObject gameObject)
+    public static void ConvertNodeFromJson(JsonData nodeData, GameObject gameObject)
     {
         if (nodeData == null) return;
 
