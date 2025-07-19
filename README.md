@@ -5,9 +5,8 @@
 
 NGUI版本: 3.8.2<br>
 CocosCreator版本: 
-> * 1.9.x使用 **CocosCreator** 中的插件
 > * 1.10.x及2.x使用 **CocosCreator_1.10_2.x** 中的插件
-> * 反向转换(Cocos Creator → Unity)使用 **CocosCreator/prefab-exporter** 插件
+> * 反向转换(Cocos Creator → Unity)使用 **CocosCreator_1.10_2.x/prefab-exporter** 插件
 
 # 功能特性
 
@@ -36,7 +35,7 @@ CocosCreator版本:
 3. 首次创建时需要加载文件夹内的所有图片, 根据图片数量可能需要较长时间. 所以建议移除文件夹内的无用图片资源.
 
 ## 反向转换 (Cocos Creator → Unity)
-1. 将 **CocosCreator/prefab-exporter** 文件夹复制到Cocos Creator项目的packages目录下
+1. 将 **CocosCreator_1.10_2.x/prefab-exporter** 文件夹复制到Cocos Creator项目的packages目录下
 2. 重启Cocos Creator，在菜单栏选择 "Prefab导出工具"
 3. 选择要导出的Prefab文件和导出路径，导出为JSON文件
 4. 将 **Unity/Editor/ImportCocosCreatorPrefab.cs** 放入Unity项目的Assets/Editor文件夹

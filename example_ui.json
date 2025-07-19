@@ -56,6 +56,14 @@
         "z": 1
       },
       "rotation": 0,
+      "size": {
+        "width": 200,
+        "height": 50
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.5
+      },
       "components": [
         {
           "type": "UILabel",
@@ -68,7 +76,9 @@
           "pivot": "Center",
           "text": "Test Title",
           "fontSize": 24,
-          "overflow": "ClampContent"
+          "overflow": "ClampContent",
+          "outlineColor": "FFFFFF",
+          "outlineWidth": 2
         }
       ]
     },
@@ -86,6 +96,14 @@
         "z": 1
       },
       "rotation": 0,
+      "size": {
+        "width": 150,
+        "height": 40
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.5
+      },
       "button": true,
       "components": [
         {
@@ -117,6 +135,14 @@
             "z": 1
           },
           "rotation": 0,
+          "size": {
+            "width": 100,
+            "height": 30
+          },
+          "anchor": {
+            "x": 0.5,
+            "y": 0.5
+          },
           "components": [
             {
               "type": "UILabel",
@@ -132,6 +158,68 @@
               "overflow": "ClampContent"
             }
           ]
+        }
+      ]
+    },
+    {
+      "name": "ScrollView",
+      "active": true,
+      "pos": {
+        "x": 0,
+        "y": -150,
+        "z": 0
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1
+      },
+      "rotation": 0,
+      "size": {
+        "width": 300,
+        "height": 100
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "scrollView": {
+        "offset": {
+          "x": 0,
+          "y": -150
+        },
+        "size": {
+          "x": 300,
+          "y": 100
+        },
+        "movement": 1
+      },
+      "children": [
+        {
+          "name": "Content",
+          "active": true,
+          "pos": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "scale": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+          },
+          "rotation": 0,
+          "size": {
+            "width": 300,
+            "height": 200
+          },
+          "anchor": {
+            "x": 0.5,
+            "y": 1
+          },
+          "grid": {
+            "arrangement": 1
+          }
         }
       ]
     }

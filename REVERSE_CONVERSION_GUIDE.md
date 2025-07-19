@@ -6,7 +6,7 @@
 
 ### 步骤1：在Cocos Creator中导出Prefab为JSON
 
-1. 将 `CocosCreator/prefab-exporter` 文件夹复制到你的Cocos Creator项目的 `packages` 目录下
+1. 将 `CocosCreator_1.10_2.x/prefab-exporter` 文件夹复制到你的Cocos Creator项目的 `packages` 目录下
 2. 重启Cocos Creator编辑器
 3. 在菜单栏选择 "Prefab导出工具"
 4. 在打开的面板中：
@@ -78,5 +78,14 @@
 ## 扩展开发
 
 如需支持更多组件或特殊转换逻辑，可以修改：
-- `CocosCreator/prefab-exporter/prefab-exporter.js` - 添加新的组件导出逻辑
+- `CocosCreator_1.10_2.x/prefab-exporter/prefab-exporter.js` - 添加新的组件导出逻辑
 - `Unity/Editor/ImportCocosCreatorPrefab.cs` - 添加新的组件导入逻辑
+
+### 版本说明
+
+当前反向转换功能基于Cocos Creator 1.10.x/2.x版本开发，支持：
+- 现代的组件系统API
+- 更稳定的资源加载机制
+- 更好的错误处理和用户反馈
+
+旧版本的CocosCreator目录不再维护，建议统一使用CocosCreator_1.10_2.x版本。
